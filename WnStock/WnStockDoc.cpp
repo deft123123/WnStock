@@ -42,13 +42,19 @@ CWnStockDoc::CWnStockDoc()
 // 
 // 	}
 
+	//GetDayMinData("600016");
+	
+
+//  	StockData stockData;
+//  	stockData.GetMinStockData("600016");
 
 	ReadMystock();
 	GetMytockData();
 	KDay = 60;		//默认画60天K线
 	KPos = 0;		//默认偏移量
 	KBegin = 0;		//开始显示的K线索引	
-	GetDayKData("600016");
+	
+	//GetDayKData("600016");
 }
 
 CWnStockDoc::~CWnStockDoc()
@@ -741,6 +747,336 @@ void CWnStockDoc::GetMacdPoint()
 		}
 		//保存DIF点坐标
 		vMacdDeaPoint.push_back(deaPoint);
+	}
+	return;
+}
+
+void CWnStockDoc::GetDayMinData(char* stockCode)
+{
+	//释放vKData内存
+	for(vector<RealTimeStock*>::iterator it = vMinData.begin(); it != vMinData.end(); it ++)
+	{
+		if (NULL != *it) 
+		{
+			delete *it; 
+			*it = NULL;
+		}
+	}
+	vMinData.clear();
+
+	StockData stockData;
+	stockData.GetMinStockData(stockCode);
+	int n = stockData.vMinStockData.size();
+	for (int i=0; i<n; i++)
+	{
+		RealTimeStock* realTimeStock = (RealTimeStock*)malloc(sizeof(RealTimeStock));
+		memset(realTimeStock, 0, sizeof(RealTimeStock));
+
+		realTimeStock->fOpen = stockData.vMinStockData[i]->fOpen;
+		realTimeStock->fPassClose = stockData.vMinStockData[i]->fPassClose;
+		realTimeStock->fNow = stockData.vMinStockData[i]->fNow;
+		realTimeStock->fHigh = stockData.vMinStockData[i]->fHigh;
+		realTimeStock->fLow = stockData.vMinStockData[i]->fLow;
+		realTimeStock->fBuy = stockData.vMinStockData[i]->fBuy;
+		realTimeStock->fSale = stockData.vMinStockData[i]->fSale;
+		realTimeStock->Volume = stockData.vMinStockData[i]->Volume;
+		realTimeStock->Amount = stockData.vMinStockData[i]->Amount;
+
+		realTimeStock->iBuy1 = stockData.vMinStockData[i]->iBuy1;
+		realTimeStock->fBuy1Price = stockData.vMinStockData[i]->fBuy1Price;
+		realTimeStock->iBuy2 = stockData.vMinStockData[i]->iBuy2;
+		realTimeStock->fBuy2Price = stockData.vMinStockData[i]->fBuy2Price;
+		realTimeStock->iBuy3 = stockData.vMinStockData[i]->iBuy3;
+		realTimeStock->fBuy3Price = stockData.vMinStockData[i]->fBuy3Price;
+		realTimeStock->iBuy4 = stockData.vMinStockData[i]->iBuy4;
+		realTimeStock->fBuy4Price = stockData.vMinStockData[i]->fBuy4Price;
+		realTimeStock->iBuy5 = stockData.vMinStockData[i]->iBuy5;
+		realTimeStock->fBuy5Price = stockData.vMinStockData[i]->fBuy5Price;
+
+		realTimeStock->iSale1 = stockData.vMinStockData[i]->iSale1;
+		realTimeStock->fSale1Price = stockData.vMinStockData[i]->fSale1Price;
+		realTimeStock->iSale2 = stockData.vMinStockData[i]->iSale2;
+		realTimeStock->fSale2Price = stockData.vMinStockData[i]->fSale2Price;
+		realTimeStock->iSale3 = stockData.vMinStockData[i]->iSale3;
+		realTimeStock->fSale3Price = stockData.vMinStockData[i]->fSale3Price;
+		realTimeStock->iSale4 = stockData.vMinStockData[i]->iSale4;
+		realTimeStock->fSale4Price = stockData.vMinStockData[i]->fSale4Price;
+		realTimeStock->iSale5 = stockData.vMinStockData[i]->iSale5;
+		realTimeStock->fSale5Price = stockData.vMinStockData[i]->fSale5Price;
+
+		memcpy(realTimeStock->strDate, stockData.vMinStockData[i]->strDate, strlen(stockData.vMinStockData[i]->strDate));
+		memcpy(realTimeStock->strTime, stockData.vMinStockData[i]->strTime, strlen(stockData.vMinStockData[i]->strTime));
+		vMinData.push_back(realTimeStock);
+	}
+
+
+	//释放vKData内存
+	for(vector<RealTimeStock*>::iterator it = stockData.vMinStockData.begin(); it != stockData.vMinStockData.end(); it ++)
+	{
+		if (NULL != *it) 
+		{
+			delete *it; 
+			*it = NULL;
+		}
+	}
+	stockData.vMinStockData.clear();
+}
+
+void CWnStockDoc::GetDayMinPoint()
+{
+	int n = vMinData.size();
+	if (n == 0)
+		return;
+
+//*******获得价格坐标
+	POINT pricePoint;
+	pricePoint.x=0;
+	pricePoint.y=0;
+	POINT avgPricePoint;
+	avgPricePoint.x=0;
+	avgPricePoint.y=0;
+	POINT volumePoint;
+	volumePoint.x=0;
+	volumePoint.y=0;
+
+
+	double fPass = vMinData[0]->fPassClose;
+	double minMaxPrice = 0;
+	double minMinPrice = 1000;
+	double minMaxAvgPrice = 0;
+	double minMinAvgPrice = 1000;
+
+	int maxVolume = 0;
+	fLimitPrice = 0;
+	double fLimitAvgPrice = 0;
+	
+	//找价格最大值和最小值
+	for(int i = 0; i<n; i++)
+	{
+		if(vMinData[i]->fNow > minMaxPrice)
+			minMaxPrice = vMinData[i]->fNow;
+		if(vMinData[i]->fNow < minMinPrice)
+			minMinPrice = vMinData[i]->fNow;
+	}
+
+	//求平均价格保存到avgPriceGroup
+	vMinAvgPrice.clear();
+	for (int i=0; i<n; i++)
+	{
+		double avgPrice = 0;
+		double sumPrice = 0;
+
+		for (int j=0; j<=i; j++)
+		{
+			sumPrice += vMinData[j]->fNow;
+		}
+		avgPrice = sumPrice/(i+1);
+		vMinAvgPrice.push_back(avgPrice);
+	}
+	for (int i=0; i<n; i++)
+	{
+		float avg = vMinAvgPrice[i];
+		CString str;
+		str.Format("%5.2f\n", vMinAvgPrice[i]);
+		OutputDebugString(str);
+	}
+	//找平均价格的最大值和最小值
+	for(int i = 0; i<n; i++) //计算最近10的
+	{
+		if(vMinAvgPrice[i] > minMaxAvgPrice)
+			minMaxAvgPrice = vMinAvgPrice[i];
+		if(vMinAvgPrice[i] < minMinAvgPrice)
+			minMinAvgPrice = vMinAvgPrice[i];
+	}
+	//找出成交量的最大值
+	for (int i=0; i<n; i++)
+	{
+		if (vMinData[i]->Volume >= maxVolume)
+			maxVolume = vMinData[i]->Volume;
+	}
+
+	//求峰值价格
+	if (minMinPrice >= fPass)
+	{
+		fLimitPrice = minMaxPrice;
+	}
+	if (minMaxPrice <= fPass)
+	{
+		fLimitPrice = minMinPrice;
+	}
+	if ((minMinPrice<fPass) && (minMaxPrice>fPass))
+	{
+		if ((minMaxPrice-fPass) > (fPass-minMinPrice))
+		{
+			fLimitPrice = minMaxPrice;
+		}
+		else
+		{
+			fLimitPrice = minMinPrice;
+		}
+	}
+
+
+	//求平均价格的峰值
+	if (minMinAvgPrice >= fPass)
+	{
+		fLimitAvgPrice = minMaxAvgPrice;
+	}
+	if (minMaxAvgPrice <= fPass)
+	{
+		fLimitAvgPrice = minMinAvgPrice;
+	}
+	if ((minMinAvgPrice<fPass) && (minMaxAvgPrice>fPass))
+	{
+		if ((minMaxAvgPrice-fPass) > (fPass-minMinAvgPrice))
+		{
+			fLimitAvgPrice = minMaxAvgPrice;
+		}
+		else
+		{
+			fLimitAvgPrice = minMinAvgPrice;
+		}
+	}
+
+
+	//峰值在上对应的纵坐标Y=(6*ih)*(fLimitPrice-fnow)/(fLimitPrice-fpass)+35;
+	//峰值在下对应的纵坐标Y=(6*ih)*(fpass-fnow)/(fpass-fLimitPrice)+6*ih+35;
+
+	POSITION pos = GetFirstViewPosition();
+	CWnStockView* pView = (CWnStockView*)GetNextView(pos);
+	
+	float ih = pView->m_interMinH;   //分时线的行高
+
+	CRect rect;
+	pView->GetClientRect(&rect);
+
+	vMinPricePoint.clear();
+	vMinAvgPricePoint.clear();
+	vMinVolumePoint.clear();
+	for (int i=0; i<n; i++)
+	{
+// 		//时间转化为秒
+// 		char time[128] = {0};
+// 		strcpy(time, vMinData[i]->strTime);
+// 		int nowS = timeToSecond(time); //直接传递minDataGroup[i]->strTime相当于引用会改变该地址值
+	
+		int nowS = atoi(vMinData[i]->strTime);
+		//价格坐标坐标
+		if (fLimitPrice>fPass) //峰值在上
+		{
+			if (nowS<= 11*3600+30*60)
+			{
+				int startS = 9*3600 +30*60;
+				pricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;
+				pricePoint.y = (6*ih)*(fLimitPrice-vMinData[i]->fNow)/(fLimitPrice-fPass)+35;
+			}
+			else
+			{
+				int startS = 13*3600;
+				pricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+				pricePoint.y = (6*ih)*(fLimitPrice-vMinData[i]->fNow)/(fLimitPrice-fPass)+35;
+			}
+		}
+		else//峰值在下
+		{
+			if (nowS<= 11*3600+30*60)
+			{
+				int startS = 9*3600 +30*60;
+				pricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;
+				pricePoint.y = (6*ih)*(fPass-vMinData[i]->fNow)/(fPass-fLimitPrice)+6*ih+35;
+			}
+			else
+			{
+				int startS = 13*3600;
+				pricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+				pricePoint.y = (6*ih)*(fPass-vMinData[i]->fNow)/(fPass-fLimitPrice)+6*ih+35;
+			}
+		}
+		
+		//均价坐标
+		if (vMinAvgPrice[i]>fPass)//均价在上
+		{
+			if (nowS<= 11*3600+30*60)
+			{
+				int startS = 9*3600 +30*60;
+				if (fLimitPrice>fPass)//价格峰值在上
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;;
+				    avgPricePoint.y = (6*ih)*(fLimitPrice-vMinAvgPrice[i])/(fLimitPrice-fPass)+35;
+				}
+				else
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;;
+					//avgPricePoint.y = -(6*ih)*(fLimitPrice-avgPriceGroup[i])/(fLimitPrice-fPass)+35;
+					avgPricePoint.y = (6*ih)*(2*fPass-fLimitPrice-vMinAvgPrice[i])/(fPass-fLimitPrice)+35;
+
+				}
+			}
+			else
+			{
+				int startS = 13*3600;
+				if (fLimitPrice>fPass)//价格峰值在上
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+					avgPricePoint.y = (6*ih)*(fLimitPrice-vMinAvgPrice[i])/(fLimitPrice-fPass)+35;
+				}
+				else
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+					//avgPricePoint.y = -(6*ih)*(fLimitPrice-avgPriceGroup[i])/(fLimitPrice-fPass)+35;
+					avgPricePoint.y = (6*ih)*(2*fPass-fLimitPrice-vMinAvgPrice[i])/(fPass-fLimitPrice)+35;
+				}
+			}
+		}
+		else
+		{
+			if (nowS<= 11*3600+30*60)
+			{
+				int startS = 9*3600 +30*60;
+				if (fLimitPrice>fPass)//价格峰值在上
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;
+					avgPricePoint.y = (6*ih)*(fPass-vMinAvgPrice[i])/(fLimitPrice - fPass)+6*ih+35;
+				}
+				else
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;
+					avgPricePoint.y = (6*ih)*(fPass-vMinAvgPrice[i])/(fPass - fLimitPrice)+6*ih+35;
+				}
+
+			}
+			else
+			{
+				int startS = 13*3600;
+				if (fLimitPrice>fPass)//价格峰值在上
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+					avgPricePoint.y = (6*ih)*(fPass-vMinAvgPrice[i])/(fLimitPrice - fPass)+6*ih+35;
+				}
+				else
+				{
+					avgPricePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+					avgPricePoint.y = (6*ih)*(fPass-vMinAvgPrice[i])/(fPass - fLimitPrice)+6*ih+35;
+				}
+			}
+		}
+		//成交量坐标 公式：Y=6*interMinH*(maxVolume-nowVolume)/maxVolume+6*interMinH+35;
+		if (nowS<= 11*3600+30*60)
+		{
+			int startS = 9*3600 +30*60;
+			volumePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62;
+			volumePoint.y = 6*ih*(maxVolume-vMinData[i]->Volume)/maxVolume+12*ih+35;
+		}
+		else
+		{
+			int startS = 13*3600;
+			volumePoint.x = ((nowS-startS)*(pView->m_interMinW))/3600 + 62 + 2*pView->m_interMinW;
+		    volumePoint.y = 6*ih*(maxVolume-vMinData[i]->Volume)/maxVolume+12*ih+35;
+	
+	    }
+		vMinPricePoint.push_back(pricePoint);
+		vMinAvgPricePoint.push_back(avgPricePoint);
+		vMinVolumePoint.push_back(volumePoint);
 	}
 	return;
 }

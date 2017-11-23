@@ -85,6 +85,10 @@ void CWnStockView::OnDraw(CDC* pDC)
 	{
 		DrowKLineUI(pDC);
 	}
+	else if (m_drawStatus == 2)
+	{
+		DrowMinLineUI(pDC);
+	}
 }
 
 
@@ -982,6 +986,530 @@ void CWnStockView::DrawMacd(int i)
 
 /******************************** 分时线部分 **************************************************/
 
+void CWnStockView::DrowMinLineUI(CDC* pDC)
+{
+	CWnStockDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	//设置背景颜色
+	CRect rect;	
+	GetClientRect (&rect);
+	pDC->SetBkMode(OPAQUE);
+	pDC->SetBkColor(RGB(0,0,0));
+	pDC->SelectStockObject(BLACK_BRUSH);
+	pDC->Rectangle(&rect);
+
+	CPen      redpen(PS_SOLID,2,RGB(153,0,0));
+	CPen      whitepen(PS_SOLID, 1, RGB(255, 255, 255));
+	CPen      redDotpen(PS_DOT, 1, RGB(153,0,0));
+	CPen      redThinPen(PS_SOLID, 1, RGB(153, 0, 0));
+	char      chName[300];	
+
+
+	pDC->SelectObject(&redpen);
+
+	//画左上角公共的边框
+	pDC->MoveTo(2, 2);
+	pDC->LineTo(rect.right - 200, 2);
+	pDC->LineTo(rect.right - 200, rect.bottom - 50);
+	pDC->LineTo(2, rect.bottom - 50);
+	pDC->LineTo(2, 2);
+
+	//画最右面的边框
+	pDC->MoveTo(rect.right - 192, 35);
+	pDC->LineTo(rect.right - 192, rect.bottom - 50);
+	pDC->LineTo(rect.right - 2, rect.bottom - 50);
+	pDC->LineTo(rect.right -2, 35);
+	pDC->LineTo(rect.right - 192, 35);
+
+	//画右边框中的分割行
+	pDC->MoveTo(rect.right - 192, 60);
+	pDC->LineTo(rect.right - 2, 60);
+	pDC->MoveTo(rect.right - 192, 170);
+	pDC->LineTo(rect.right - 2, 170);
+	pDC->MoveTo(rect.right - 192, 280);
+	pDC->LineTo(rect.right - 2, 280);
+
+	//画最下面的边框
+	pDC->SelectObject(&whitepen);
+	pDC->MoveTo(2, rect.bottom - 42);
+	pDC->LineTo(rect.right - 2, rect.bottom - 42);
+	pDC->LineTo(rect.right - 2, rect.bottom - 2);
+	pDC->LineTo(2, rect.bottom - 2);
+	pDC->LineTo(2, rect.bottom - 42);
+
+
+
+	//写最右面方框的文字
+	pDC->SetTextColor(RGB(255,255,255));
+	pDC->TextOut(rect.right - 188, 40,  "委  比", lstrlen("委  比"));
+
+	pDC->TextOut(rect.right - 188, 65,  "卖  五", lstrlen("卖  四"));
+	pDC->TextOut(rect.right - 188, 85,  "卖  四", lstrlen("卖  三"));
+	pDC->TextOut(rect.right - 188, 105, "卖  三", lstrlen("卖  二"));
+	pDC->TextOut(rect.right - 188, 125, "卖  二", lstrlen("卖  一"));
+	pDC->TextOut(rect.right - 188, 145, "卖  一", lstrlen("卖  一"));
+
+	pDC->TextOut(rect.right - 188, 175, "买  一", lstrlen("买  一"));
+	pDC->TextOut(rect.right - 188, 195, "买  二", lstrlen("买  二"));
+	pDC->TextOut(rect.right - 188, 215, "买  三", lstrlen("买  三"));
+	pDC->TextOut(rect.right - 188, 235, "买  四", lstrlen("买  四"));
+	pDC->TextOut(rect.right - 188, 255, "买  五", lstrlen("买  五"));
+
+	pDC->TextOut(rect.right - 188, 285, "当  前", lstrlen("当  前"));
+	pDC->TextOut(rect.right - 100, 285, "开 盘", lstrlen("开 盘"));
+	pDC->TextOut(rect.right - 188, 305, "涨  幅", lstrlen("涨  幅"));
+	pDC->TextOut(rect.right - 100, 305, "最 高", lstrlen("最 高"));
+	pDC->TextOut(rect.right - 188, 325, "昨  收", lstrlen("昨  收"));
+	pDC->TextOut(rect.right - 100, 325, "最 低", lstrlen("最 低"));
+
+	//写最下面边框的文字
+	pDC->SetTextColor(RGB(255,255,255));
+	sprintf(chName, "%8s", "◆蜗牛201作品： QQ:879268496            email:wangpengfei.201@163.com");
+	pDC->TextOut(15, rect.bottom - 28, chName, lstrlen(chName));
+
+	//写右上角的文字
+	pDC->SetTextColor(RGB(255,255,0));
+	//pDC->TextOut(rect.right-192, 7, "*******",lstrlen("*******"));
+	pDC->TextOut(rect.right-192, 7, m_stockName,lstrlen(m_stockName));
+	pDC->SetTextColor(RGB(116,245,240));
+	//pDC->TextOut(rect.right-100, 7, "600000",lstrlen("600000"));    
+	pDC->TextOut(rect.right-100, 7, m_stockCode,lstrlen(m_stockCode));    
+
+	pDC->SelectObject(&redpen);		
+	m_interMinH = (rect.bottom - 110)/18;  
+	m_interMinW = (rect.right - 322)/4;
+
+	//以下是画那个外面的方框，为保证每份均等，所以要求interH和interW
+	pDC->MoveTo(62, 35);
+	pDC->LineTo(62+m_interMinW*4, 35);	
+	pDC->LineTo(62+m_interMinW*4, 35+m_interMinH*18);
+	pDC->LineTo(62, 35+m_interMinH*18);
+	pDC->LineTo(62, 35); 	
+
+	//以下是画横着的那些虚线
+	pDC->SelectObject(&redDotpen);
+	for(int h = 35+m_interMinH; h < 35+m_interMinH*18; h += m_interMinH)
+	{
+		pDC->MoveTo(62, h);
+		pDC->LineTo(62+m_interMinW*4, h);
+	}
+
+	//以下是画第六条粗实线
+	pDC->SelectObject(&redpen);	
+	pDC->MoveTo(62, 35+m_interMinH*6);
+	pDC->LineTo(62+m_interMinW*4, 35+m_interMinH*6);
+
+	//以下是画第十二条细实线
+	pDC->SelectObject(&redThinPen);
+	pDC->MoveTo(62, 35+m_interMinH*12);
+	pDC->LineTo(62+m_interMinW*4, 35+m_interMinH*12);      
+
+	//以下是画竖着的的那三条细实线
+	for(int w = 62+m_interMinW; w < 62+m_interMinW*4; w += m_interMinW)
+	{
+		pDC->MoveTo(w, 35);
+		pDC->LineTo(w, 35+m_interMinH*18);
+	}
+
+	//以下是写时间
+	pDC->SetTextColor(RGB(255, 255, 255));	
+	pDC->TextOut(44, 37+m_interMinH*18, "09:30", lstrlen("09:30"));
+	pDC->TextOut(44+m_interMinW, 37+m_interMinH*18, "10:30", lstrlen("10:30")); 
+	pDC->TextOut(44+m_interMinW*2, 37+m_interMinH*18, "13:00", lstrlen("13:00"));
+	pDC->TextOut(44+m_interMinW*3, 37+m_interMinH*18, "14:00", lstrlen("14:00"));
+	pDC->TextOut(44+m_interMinW*4, 37+m_interMinH*18, "15:00", lstrlen("15:00"));
+
+	//pDoc->GetMinData(pDoc->stockCode);
+// 	pDoc->GetMinPoint();
+// 	ShowMinData();
+// 	DrawMinLine();
+
+	pDoc->GetDayMinPoint();
+	DrowMinLine();
+	ShowMinData();
+
+}
+
+void CWnStockView::ShowMinData()
+{
+	CWnStockDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	CClientDC dcRed(this);
+	CClientDC dcGreen(this);
+	CClientDC dcWhite(this);
+
+	CRect  rect;
+	GetClientRect(&rect);
+
+	char chName[300] = {0};
+
+	dcRed.SetBkMode(OPAQUE);
+	dcRed.SetBkColor(RGB(0,0,0));
+	dcRed.SetTextAlign (TA_LEFT| TA_TOP);
+	dcRed.SetTextColor(RGB(153,0,0));
+
+	dcGreen.SetBkMode(OPAQUE);
+	dcGreen.SetBkColor(RGB(0,0,0));
+	dcGreen.SetTextAlign (TA_LEFT| TA_TOP);
+	dcGreen.SetTextColor(RGB(0,255,255));
+
+	dcWhite.SetBkMode(OPAQUE);
+	dcWhite.SetBkColor(RGB(0,0,0));
+	dcWhite.SetTextAlign (TA_LEFT| TA_TOP);
+	dcWhite.SetTextColor(RGB(255,255,255));
+
+
+	int n = pDoc->vMinData.size();
+	if (n==0)
+	{
+		return;
+	}
+	if (pDoc->vMinData[n-1]->fNow >= pDoc->vMinData[n-1]->fPassClose)
+	{
+		dcRed.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale5Price);
+		dcRed.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale5)/100);
+		dcRed.TextOut(rect.right-60, 65, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 85, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale4Price);
+		dcRed.TextOut(rect.right-130, 85, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale4)/100);
+		dcRed.TextOut(rect.right-60, 85, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 105, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale3Price);
+		dcRed.TextOut(rect.right-130, 105, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale3)/100);
+		dcRed.TextOut(rect.right-60, 105, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 125, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale2Price);
+		dcRed.TextOut(rect.right-130, 125, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale2)/100);
+		dcRed.TextOut(rect.right-60, 125, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 145, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale1Price);
+		dcRed.TextOut(rect.right-130, 145, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale1)/100);
+		dcRed.TextOut(rect.right-60, 145, chName, lstrlen(chName)-1);
+
+		dcRed.TextOut(rect.right-130, 175, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy1Price);
+		dcRed.TextOut(rect.right-130, 175, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy1)/100);
+		dcRed.TextOut(rect.right-60, 175, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 195, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy2Price);
+		dcRed.TextOut(rect.right-130, 195, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy2)/100);
+		dcRed.TextOut(rect.right-60, 195, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 215, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy3Price);
+		dcRed.TextOut(rect.right-130, 215, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy3)/100);
+		dcRed.TextOut(rect.right-60, 215, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 235, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy4Price);
+		dcRed.TextOut(rect.right-130, 235, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy4)/100);
+		dcRed.TextOut(rect.right-60, 235, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 255, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy5Price);
+		dcRed.TextOut(rect.right-130, 255, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy5)/100);
+		dcRed.TextOut(rect.right-60, 255, chName, lstrlen(chName)-1);
+
+		dcRed.TextOut(rect.right-140, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fNow);
+		dcRed.TextOut(rect.right-140, 285, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-140, 305, "      ", strlen("      ")-1);
+		float ratio = (-pDoc->vMinData[n-1]->fPassClose + pDoc->vMinData[n-1]->fNow) / pDoc->vMinData[n-1]->fPassClose;
+		sprintf(chName, "+%5.2f\n", ratio*100);
+		dcRed.TextOut(rect.right-140, 305, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-140, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fPassClose);
+		dcRed.TextOut(rect.right-140, 325, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fOpen);
+		dcRed.TextOut(rect.right-50, 285, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 305, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fHigh);
+		dcRed.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fLow);
+		dcRed.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
+	}
+	else
+	{
+		dcGreen.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale5Price);
+		dcGreen.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale5)/100);
+		dcGreen.TextOut(rect.right-60, 65, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 85, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale4Price);
+		dcGreen.TextOut(rect.right-130, 85, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale4)/100);
+		dcGreen.TextOut(rect.right-60, 85, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 105, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale3Price);
+		dcGreen.TextOut(rect.right-130, 105, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale3)/100);
+		dcGreen.TextOut(rect.right-60, 105, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 125, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale2Price);
+		dcGreen.TextOut(rect.right-130, 125, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale2)/100);
+		dcGreen.TextOut(rect.right-60, 125, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 145, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale1Price);
+		dcGreen.TextOut(rect.right-130, 145, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale1)/100);
+		dcGreen.TextOut(rect.right-60, 145, chName, lstrlen(chName)-1);
+
+		dcGreen.TextOut(rect.right-130, 175, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy1Price);
+		dcGreen.TextOut(rect.right-130, 175, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy1)/100);
+		dcGreen.TextOut(rect.right-60, 175, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 195, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy2Price);
+		dcGreen.TextOut(rect.right-130, 195, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy2)/100);
+		dcGreen.TextOut(rect.right-60, 195, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 215, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy3Price);
+		dcGreen.TextOut(rect.right-130, 215, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy3)/100);
+		dcGreen.TextOut(rect.right-60, 215, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 235, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy4Price);
+		dcGreen.TextOut(rect.right-130, 235, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy4)/100);
+		dcGreen.TextOut(rect.right-60, 235, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 255, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fBuy5Price);
+		dcGreen.TextOut(rect.right-130, 255, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iBuy5)/100);
+		dcGreen.TextOut(rect.right-60, 255, chName, lstrlen(chName)-1);
+
+		dcGreen.TextOut(rect.right-140, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fNow);
+		dcGreen.TextOut(rect.right-140, 285, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-140, 305, "      ", strlen("      ")-1);
+		float ratio = (pDoc->vMinData[n-1]->fPassClose - pDoc->vMinData[n-1]->fNow) / pDoc->vMinData[n-1]->fPassClose;
+		sprintf(chName, "-%5.2f\n", ratio*100);
+		dcGreen.TextOut(rect.right-140, 305, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-140, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fPassClose);
+		dcGreen.TextOut(rect.right-140, 325, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fOpen);
+		dcGreen.TextOut(rect.right-50, 285, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 305, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fHigh);
+		dcGreen.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fLow);
+		dcGreen.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
+	}
+
+	//分时线的最高，最低，昨收盘价格
+	float diffPrice = 0; //每个interH对应的价格差
+	float fPass = pDoc->vMinData[0]->fPassClose;
+	if (pDoc->fLimitPrice > (fPass)) // 峰值在上
+	{
+		diffPrice = (pDoc->fLimitPrice - fPass)/6;
+	}
+	else//峰值在下
+	{
+		diffPrice = (fPass - pDoc->fLimitPrice)/6;
+	}
+
+	float upPrice1 = pDoc->vMinData[0]->fPassClose+diffPrice;
+	float upPrice2 = pDoc->vMinData[0]->fPassClose+2*diffPrice;
+	float upPrice3 = pDoc->vMinData[0]->fPassClose+3*diffPrice;
+	float upPrice4 = pDoc->vMinData[0]->fPassClose+4*diffPrice;
+	float upPrice5 = pDoc->vMinData[0]->fPassClose+5*diffPrice;
+	float upPrice6 = pDoc->vMinData[0]->fPassClose+6*diffPrice;
+
+	float downPrice1 = pDoc->vMinData[0]->fPassClose-diffPrice;
+	float downPrice2 = pDoc->vMinData[0]->fPassClose-2*diffPrice;
+	float downPrice3 = pDoc->vMinData[0]->fPassClose-3*diffPrice;
+	float downPrice4 = pDoc->vMinData[0]->fPassClose-4*diffPrice;
+	float downPrice5 = pDoc->vMinData[0]->fPassClose-5*diffPrice;
+	float downPrice6 = pDoc->vMinData[0]->fPassClose-6*diffPrice;
+
+	//(62, 35)
+	dcRed.TextOut(20, 30+5*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice1);
+	dcRed.TextOut(20, 30+5*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(20, 30+4*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice2);
+	dcRed.TextOut(20, 30+4*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(20, 30+3*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice3);
+	dcRed.TextOut(20, 30+3*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(20, 30+2*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice4);
+	dcRed.TextOut(20, 30+2*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(20, 30+m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice5);
+	dcRed.TextOut(20, 30+m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(20, 30, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", upPrice6);
+	dcRed.TextOut(20, 30, chName, lstrlen(chName)-1);
+
+	dcWhite.TextOut(20, 30+6*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", pDoc->vMinData[0]->fPassClose);
+	dcWhite.TextOut(20, 30+6*m_interMinH, chName, lstrlen(chName)-1);
+
+	dcGreen.TextOut(20, 30+7*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice1);
+	dcGreen.TextOut(20, 30+7*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(20, 30+8*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice2);
+	dcGreen.TextOut(20, 30+8*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(20, 30+9*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice3);
+	dcGreen.TextOut(20, 30+9*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(20, 30+110*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice4);
+	dcGreen.TextOut(20, 30+10*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(20, 30+11*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice5);
+	dcGreen.TextOut(20, 30+11*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(20, 30+12*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f\n", downPrice6);
+	dcGreen.TextOut(20, 30+12*m_interMinH, chName, lstrlen(chName)-1);
+
+	//分时线的涨跌各个线的涨跌比例
+	float upRatio1 = ((upPrice1- fPass)/fPass)*100;
+	float upRatio2 = ((upPrice2- fPass)/fPass)*100;
+	float upRatio3 = ((upPrice3- fPass)/fPass)*100;
+	float upRatio4 = ((upPrice4- fPass)/fPass)*100;
+	float upRatio5 = ((upPrice5- fPass)/fPass)*100;
+	float upRatio6 = ((upPrice6- fPass)/fPass)*100;
+
+	float downRatio1 = ((fPass- downPrice1)/fPass)*100;
+	float downRatio2 = ((fPass- downPrice2)/fPass)*100;
+	float downRatio3 = ((fPass- downPrice3)/fPass)*100;
+	float downRatio4 = ((fPass- downPrice4)/fPass)*100;
+	float downRatio5 = ((fPass- downPrice5)/fPass)*100;
+	float downRatio6 = ((fPass- downPrice6)/fPass)*100;
+
+	//涨幅比
+	dcRed.TextOut(70+4*m_interMinW, 30+5*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio1);
+	dcRed.TextOut(70+4*m_interMinW, 30+5*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(70+4*m_interMinW, 30+4*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio2);
+	dcRed.TextOut(70+4*m_interMinW, 30+4*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(70+4*m_interMinW, 30+3*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio3);
+	dcRed.TextOut(70+4*m_interMinW, 30+3*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(70+4*m_interMinW, 30+2*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio4);
+	dcRed.TextOut(70+4*m_interMinW, 30+2*m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(70+4*m_interMinW, 30+m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio5);
+	dcRed.TextOut(70+4*m_interMinW, 30+m_interMinH, chName, lstrlen(chName)-1);
+	dcRed.TextOut(70+4*m_interMinW, 30, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", upRatio6);
+	dcRed.TextOut(70+4*m_interMinW, 30, chName, lstrlen(chName)-1);
+
+	//涨跌幅中间基准
+	dcWhite.TextOut(70+4*m_interMinW, 30+6*m_interMinH, "      ", strlen("      ")-1);
+	dcWhite.TextOut(70+4*m_interMinW, 30+6*m_interMinH, "0.00%%", lstrlen("0.00%%")-1);
+
+	//跌幅比
+	dcGreen.TextOut(70+4*m_interMinW, 30+7*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+7*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+8*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio2);
+	dcGreen.TextOut(70+4*m_interMinW, 30+8*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+9*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio3);
+	dcGreen.TextOut(70+4*m_interMinW, 30+9*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+10*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio4);
+	dcGreen.TextOut(70+4*m_interMinW, 30+10*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+11*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio5);
+	dcGreen.TextOut(70+4*m_interMinW, 30+11*m_interMinH, chName, lstrlen(chName)-1);
+	dcGreen.TextOut(70+4*m_interMinW, 30+12*m_interMinH, "      ", strlen("      ")-1);
+	sprintf(chName, "%5.2f%%\n", downRatio6);
+	dcGreen.TextOut(70+4*m_interMinW, 30+12*m_interMinH, chName, lstrlen(chName)-1);
+
+	return;
+}
+
+void CWnStockView::DrowMinLine()
+{
+	CWnStockDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+
+	CClientDC dcRed(this);
+	CClientDC dcYellow(this);
+
+	CPen  redPen(PS_SOLID,1,RGB(255, 255, 255));
+	CPen  yellowPen(PS_SOLID,1,RGB(255, 255, 0));
+
+	dcRed.SelectObject(&redPen);
+	dcYellow.SelectObject(&yellowPen);
+
+	int n = pDoc->vMinPricePoint.size();
+	if (n == 0)
+	{
+		return;
+	}
+	//画价格线
+	dcRed.MoveTo(pDoc->vMinPricePoint[0].x ,pDoc->vMinPricePoint[0].y);
+	for(int i=1; i<n; i++)
+	{
+		dcRed.LineTo(pDoc->vMinPricePoint[i].x ,pDoc->vMinPricePoint[i].y);
+	}
+
+	//画平均价格线
+
+	int len = pDoc->vMinAvgPricePoint.size();
+	dcYellow.MoveTo(pDoc->vMinAvgPricePoint[0].x ,pDoc->vMinAvgPricePoint[0].y);
+	for(int i=1; i<n; i++)
+	{
+		dcYellow.LineTo(pDoc->vMinAvgPricePoint[i].x ,pDoc->vMinAvgPricePoint[i].y);
+	}
+
+	//画成交量线
+	for(int i=1; i<n; i++)
+	{
+		dcYellow.MoveTo(pDoc->vMinVolumePoint[i].x ,35+18*m_interMinH);
+		dcYellow.LineTo(pDoc->vMinVolumePoint[i].x ,pDoc->vMinVolumePoint[i].y);
+	}
+	return ;
+}
+
+UINT CWnStockView::ThreadGetMinData(LPVOID lParam)
+{
+	CWnStockView* pThis = (CWnStockView*)lParam;
+	CWnStockDoc* pDoc = (CWnStockDoc*)pThis->GetDocument();
+	StockTime	stockTime;	
+
+	while(1)
+	{
+		if ((stockTime.bExchange()) && (pThis->m_drawStatus == 2))
+		{
+			pDoc->GetDayMinData(pThis->m_stockCode.GetBuffer(pThis->m_stockCode.GetLength()));
+			OutputDebugString("获得数据成功\n");
+			pThis->Invalidate();
+		}
+		Sleep(10*1000);
+	}
+}
 /********************************* 三界面公用函数部分 ******************************************/
 int CWnStockView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -989,6 +1517,8 @@ int CWnStockView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	SetTimer(1, 10000, NULL);
 	//AfxBeginThread(ThreadGetMytockData, this);
+	
+	AfxBeginThread(ThreadGetMinData, this);
 	return 0;
 }
 
@@ -1281,6 +1811,15 @@ void CWnStockView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		return;
 
 	if (m_drawStatus == 0)
+	{
+		bScroll = false;
+		OnInitialUpdate();
+		m_drawStatus = 2;
+		pDoc->GetDayMinData(m_stockCode.GetBuffer(m_stockCode.GetLength()));
+		
+		Invalidate();
+	}
+	else if (m_drawStatus == 2)
 	{
 		bScroll = false;
 		OnInitialUpdate();

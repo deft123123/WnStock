@@ -96,10 +96,12 @@ public:
 	bool GetRealTimeStockData(char* stockCode, RealTimeStock* realTimeStock);
 	bool GetRealTimeMarketData(char* code, RealTimeMarket* realTimeMarket);
 	/*************KÏß ²¿·Ö*******************/       
-	vector<KStock*>		vKStockData;
-	void				SaveKData(char* stock, char* data, int i);
-	bool				GetKStockData(char* stockCode);
-	bool				GetKStockData1(char* stockCode);
+	vector<KStock*>			vKStockData;
+	vector<RealTimeStock*>	vMinStockData;
+	void					SaveKData(char* stock, char* data, int i);
+	bool					GetKStockData(char* stockCode);
+	bool					GetKStockData1(char* stockCode);
+	bool					GetMinStockData(char* stockCode);
 private:
 };
 
@@ -116,5 +118,6 @@ public:
 	BOOL	bSameWeek(char* pDate1, char* pDate2);
 	BOOL	bSameMonth(char* pDate1, char* pDate2);
 	BOOL	bExchange();
+	char*	TimeToSecond(char* time);
 };
 #endif

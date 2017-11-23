@@ -101,8 +101,19 @@ public:
 	void GetMaPoint();								//获得MA5,MA10,MA20坐标
 	void GetMacd();									//获得MACD值
 	void GetMacdPoint();							//获得MACD的坐标值
+//分时线
+	vector<RealTimeStock*>	vMinData;				//分时线的数据
+	vector<POINT>			vMinPoint;				//分时线的坐标
+	vector<double>			vMinAvgPrice;			//平均价格
+	vector<POINT>			vMinPricePoint;			//价格坐标
+	vector<POINT>			vMinAvgPricePoint;			//平均价格坐标
+	vector<POINT>			vMinVolumePoint;			//成交量坐标
 
-//其他函数
+	void GetDayMinData(char* stockCode);			//获取分时线数据，保存到"WnStockDll.h"中的vMinStockData中
+	void GetDayMinPoint();							//获取分时线的坐标数据
+	double					fLimitPrice;			//该价格为离中间线最远的最低价或最高价
+
+	//其他函数
 	void AddMystock(char* stockCode);				//右键弹出框添加自选股使用
 	void DelMystock(char* stockCode);				//右键弹出框删除自选股使用
 };
