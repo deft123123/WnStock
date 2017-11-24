@@ -23,6 +23,12 @@ using namespace std;
 *	@ 2017/08/03
 */
 
+struct AllStock 
+{
+	char stockCode[32];
+	char stockName[64];
+};
+
 struct RealTimeStock
 {
 	char		strStockNum[32];
@@ -106,7 +112,9 @@ struct KVolumePoint     //K线价格对应的坐标结构体
 class WNSTOCKDLL_API StockData
 {
 public:
-	vector<string> ReadMystockCode();
+	vector<string>		ReadMystockCode();
+	void				WriteMystockCode(vector <string> vMyStock);
+	vector<AllStock*>	ReadAllStock();
 	/************My Stock********************/
 	bool GetRealTimeStockData(char* stockCode, RealTimeStock* realTimeStock);
 	bool GetRealTimeMarketData(char* code, RealTimeMarket* realTimeMarket);
@@ -118,6 +126,7 @@ public:
 	bool					GetKStockData1(char* stockCode);
 	bool					GetMinStockData(char* stockCode);
 private:
+	char* UTF8ToGB2312(const char* strUtf8);
 };
 
 /*
