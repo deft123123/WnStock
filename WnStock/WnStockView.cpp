@@ -1127,7 +1127,9 @@ void CWnStockView::DrowMinLineUI(CDC* pDC)
 // 	ShowMinData();
 // 	DrawMinLine();
 
+
 	pDoc->stockDoc->GetDayMinPoint(m_interMinH, m_interMinW);
+
 	DrowMinLine();
 	ShowMinData();
 
@@ -1163,11 +1165,13 @@ void CWnStockView::ShowMinData()
 	dcWhite.SetTextColor(RGB(255,255,255));
 
 
+
 	int n = pDoc->stockDoc->vMinData.size();
 	if (n==0)
 	{
 		return;
 	}
+
 	if (pDoc->stockDoc->vMinData[n-1]->fNow >= pDoc->stockDoc->vMinData[n-1]->fPassClose)
 	{
 		dcRed.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
@@ -1239,12 +1243,13 @@ void CWnStockView::ShowMinData()
 		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fHigh);
 		dcRed.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
 		dcRed.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
-		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow)
 		dcRed.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
 	}
 	else
 	{
 		dcGreen.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
+
 		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale5Price);
 		dcGreen.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
 		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale5)/100);
@@ -1319,6 +1324,7 @@ void CWnStockView::ShowMinData()
 
 	//分时线的最高，最低，昨收盘价格
 	float diffPrice = 0; //每个interH对应的价格差
+
 	float fPass = pDoc->stockDoc->vMinData[0]->fPassClose;
 	if (pDoc->stockDoc->fLimitPrice > (fPass)) // 峰值在上
 	{
@@ -1364,6 +1370,7 @@ void CWnStockView::ShowMinData()
 	dcRed.TextOut(20, 30, chName, lstrlen(chName)-1);
 
 	dcWhite.TextOut(20, 30+6*m_interMinH, "      ", strlen("      ")-1);
+
 	sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[0]->fPassClose);
 	dcWhite.TextOut(20, 30+6*m_interMinH, chName, lstrlen(chName)-1);
 
@@ -1463,12 +1470,14 @@ void CWnStockView::DrowMinLine()
 	dcRed.SelectObject(&redPen);
 	dcYellow.SelectObject(&yellowPen);
 
+
 	int n = pDoc->stockDoc->vMinPricePoint.size();
 	if (n == 0)
 	{
 		return;
 	}
 	//画价格线
+
 	dcRed.MoveTo(pDoc->stockDoc->vMinPricePoint[0].x ,pDoc->stockDoc->vMinPricePoint[0].y);
 	for(int i=1; i<n; i++)
 	{
