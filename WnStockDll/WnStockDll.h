@@ -134,8 +134,6 @@ public:
 	BOOL	bSameMonth(char* pDate1, char* pDate2);
 	BOOL	bExchange();
 	char*	TimeToSecond(char* time);
-<<<<<<< HEAD
-=======
 };
 
 
@@ -199,7 +197,6 @@ public:
 	void GetDayMinPoint(double m_interMinH, double m_interMinW);//获取分时线的坐标数据
 	double					fLimitPrice;					//该价格为离中间线最远的最低价或最高价
 
->>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 };
 
 
