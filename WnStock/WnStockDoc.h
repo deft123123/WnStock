@@ -5,19 +5,7 @@
 
 #pragma once
 
-struct 	KPoint	//K线价格对应坐标结构体
-{	
-	POINT high;
-	POINT low;
-	POINT open;
-	POINT close;
-};
 
-struct KVolumePoint     //K线价格对应的坐标结构体 
-{
-	POINT top;
-	POINT bottom;
-};
 class CWnStockDoc : public CDocument
 {
 protected: // 仅从序列化创建
@@ -60,6 +48,7 @@ protected:
 
 	
 public:
+	StockDoc* stockDoc;
 	/****************自定义变量和函数******************/
 	
 //自选股容器，变量和函数
@@ -68,6 +57,7 @@ public:
 	void			WriteMystock();					//保存自选股到本地数据库(sqlite)
 	void			GetMytockData();				//获取所有自选股的数据
 	vector<RealTimeStock*> vMystockRealTimeData;	//自选股实时数据容器
+<<<<<<< HEAD
 //K线容器，变量和函数
 	vector<KStock*>		vKData;						//K历史数据
 	vector <KPoint *>	vKPoint;					//K线坐标容器
@@ -112,6 +102,8 @@ public:
 	void GetDayMinData(char* stockCode);			//获取分时线数据，保存到"WnStockDll.h"中的vMinStockData中
 	void GetDayMinPoint();							//获取分时线的坐标数据
 	double					fLimitPrice;			//该价格为离中间线最远的最低价或最高价
+=======
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 
 	//其他函数
 	void AddMystock(char* stockCode);				//右键弹出框添加自选股使用

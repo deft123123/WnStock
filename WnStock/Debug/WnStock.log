@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿生成启动时间为 2017/11/3 11:12:33。
+=======
+﻿生成启动时间为 2017/11/6 21:22:23。
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
      1>项目“F:\项目\WnStock\src\WnStock\WnStock\WnStock.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Debug\WnStock.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
@@ -452,4 +456,8 @@
 
 生成成功。
 
+<<<<<<< HEAD
 已用时间 00:00:06.92
+=======
+已用时间 00:00:01.89
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066

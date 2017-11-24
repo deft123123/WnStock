@@ -557,22 +557,22 @@ void CWnStockView::DrowKLineUI(CDC* pDC)
 	pDC->LineTo(rect.right-200, rect.bottom-50-m_interKH*6);
 
 	//K线和成交量
-	pDoc->GetKPoint();
-	pDoc->GetKVolumePoint();
+	pDoc->stockDoc->GetKPoint(m_interKH, m_interKW);
+	pDoc->stockDoc->GetKVolumePoint(m_interKH, m_interKW);
 	DrawKLine();
 	
 	//MA线
-	pDoc->GetMaPrice();
-	pDoc->GetMaPoint();
+	pDoc->stockDoc->GetMaPrice();
+	pDoc->stockDoc->GetMaPoint(m_interKH, m_interKW);
 	DrawMaLine();
 
 	//K线展示数据
-	ShowKData(pDoc->KDay-1);
+	ShowKData(pDoc->stockDoc->KDay-1);
 
 	//MACD线
-	pDoc->GetMacd();
-	pDoc->GetMacdPoint();
-	DrawMacd(pDoc->KDay-1);
+	pDoc->stockDoc->GetMacd();
+	pDoc->stockDoc->GetMacdPoint(m_interKH, m_interKW);
+	DrawMacd(pDoc->stockDoc->KDay-1);
 }
 
 void CWnStockView::DrawKLine()
@@ -587,27 +587,27 @@ void CWnStockView::DrawKLine()
 	CBrush		blackBrush(RGB(0, 0, 0));
 
 	char chName[200] = {0};
-	//pDoc->ExchangeK();
+	//pDoc->stockDoc->ExchangeK();
 
 	CRect rect, kRect, kaRect;
 	GetClientRect(&rect);
-	float lw = (rect.right - 200 -62)/pDoc->KDay;//每个K线所占的宽度
-	int n = pDoc->vKPoint.size();  //获得保存坐标个数
+	float lw = (rect.right - 200 -62)/pDoc->stockDoc->KDay;//每个K线所占的宽度
+	int n = pDoc->stockDoc->vKPoint.size();  //获得保存坐标个数
 	if (n == 0)
 	{
 		return;
 	}
 	//显示最新的数据
-	if(n < pDoc->KDay - pDoc->KBegin)
-		j = 0+ pDoc->KPos;
+	if(n < pDoc->stockDoc->KDay - pDoc->stockDoc->KBegin)
+		j = 0+ pDoc->stockDoc->KPos;
 	else
-		j = n - (pDoc->KDay - pDoc->KBegin) + pDoc->KPos;
+		j = n - (pDoc->stockDoc->KDay - pDoc->stockDoc->KBegin) + pDoc->stockDoc->KPos;
 
 	int i;
-	int pos = pDoc->KPos;
+	int pos = pDoc->stockDoc->KPos;
 	for(/*int*/ i = j ; i < n; i++)
 	{
-		if((pDoc->vKPoint[i]->close.y) <= (pDoc->vKPoint[i]->open.y)) //收盘价大于开盘价为阳线
+		if((pDoc->stockDoc->vKPoint[i]->close.y) <= (pDoc->stockDoc->vKPoint[i]->open.y)) //收盘价大于开盘价为阳线
 		{
 			dc.SelectObject(&redPen);
 			dc.SelectObject(&blackBrush);
@@ -617,31 +617,31 @@ void CWnStockView::DrawKLine()
 			dc.SelectObject(&cyanPen);
 			dc.SelectObject(&cyanBrush);
 		}
-		/*		if(62 + (i-j)*lw + pDoc->Get_kPointArray(i).high.x + pDoc->Get_kBegine()*(rect.right - 200 - 62)/pDoc->Get_kDay() > 62 && 62 + (i-j)*lw + pDoc->Get_kPointArray(i).high.x + pDoc->Get_kBegine()*(rect.right - 200 - 62)/pDoc->Get_kDay() < rect.right - 200)*/
+		/*		if(62 + (i-j)*lw + pDoc->stockDoc->Get_kPointArray(i).high.x + pDoc->stockDoc->Get_kBegine()*(rect.right - 200 - 62)/pDoc->stockDoc->Get_kDay() > 62 && 62 + (i-j)*lw + pDoc->stockDoc->Get_kPointArray(i).high.x + pDoc->stockDoc->Get_kBegine()*(rect.right - 200 - 62)/pDoc->stockDoc->Get_kDay() < rect.right - 200)*/
 		//判断坐标是否在绘制K线的区域
-		if (62 + (i-j)*lw + pDoc->vKPoint[i]->high.x + pDoc->KBegin*lw > 62 && 62 + (i-j)*lw + pDoc->vKPoint[i]->high.x + pDoc->KBegin*lw < rect.right - 200)
+		if (62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->high.x + pDoc->stockDoc->KBegin*lw > 62 && 62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->high.x + pDoc->stockDoc->KBegin*lw < rect.right - 200)
 		{
-			dc.MoveTo(62 + (i-j)*lw + pDoc->vKPoint[i]->high.x + pDoc->KBegin*lw, pDoc->vKPoint[i]->high.y);
-			dc.LineTo(62 + (i-j)*lw + pDoc->vKPoint[i]->low.x + pDoc->KBegin*lw, pDoc->vKPoint[i]->low.y);
-			kRect.left =62 + (i-j)*lw + pDoc->vKPoint[i]->open.x + pDoc->KBegin*lw;
-			kRect.top = pDoc->vKPoint[i]->open.y;
-			kRect.right = 62 + (i-j)*lw +pDoc->vKPoint[i]->close.x + pDoc->KBegin*lw;
-			kRect.bottom = pDoc->vKPoint[i]->close.y;
+			dc.MoveTo(62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->high.x + pDoc->stockDoc->KBegin*lw, pDoc->stockDoc->vKPoint[i]->high.y);
+			dc.LineTo(62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->low.x + pDoc->stockDoc->KBegin*lw, pDoc->stockDoc->vKPoint[i]->low.y);
+			kRect.left =62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->open.x + pDoc->stockDoc->KBegin*lw;
+			kRect.top = pDoc->stockDoc->vKPoint[i]->open.y;
+			kRect.right = 62 + (i-j)*lw +pDoc->stockDoc->vKPoint[i]->close.x + pDoc->stockDoc->KBegin*lw;
+			kRect.bottom = pDoc->stockDoc->vKPoint[i]->close.y;
 			dc.Rectangle(&kRect);     //画矩形
 
 			//@20150506解决开盘板没有K线问题,和开盘价等于收盘价没有横线只有竖线问题
-			if (pDoc->vKPoint[i]->open.y == pDoc->vKPoint[i]->close.y)
+			if (pDoc->stockDoc->vKPoint[i]->open.y == pDoc->stockDoc->vKPoint[i]->close.y)
 
 			{
-				dc.MoveTo(62 + (i-j)*lw + pDoc->vKPoint[i]->open.x + pDoc->KBegin*lw,pDoc->vKPoint[i]->open.y);
-				dc.LineTo(62 + (i-j)*lw +pDoc->vKPoint[i]->close.x + pDoc->KBegin*lw,pDoc->vKPoint[i]->close.y);
+				dc.MoveTo(62 + (i-j)*lw + pDoc->stockDoc->vKPoint[i]->open.x + pDoc->stockDoc->KBegin*lw,pDoc->stockDoc->vKPoint[i]->open.y);
+				dc.LineTo(62 + (i-j)*lw +pDoc->stockDoc->vKPoint[i]->close.x + pDoc->stockDoc->KBegin*lw,pDoc->stockDoc->vKPoint[i]->close.y);
 			}
 
 			//画K线总量坐标
-			kaRect.left = 62 + (i-j)*lw + pDoc->vVolumePoint[i]->top.x + pDoc->KBegin*lw;
-			kaRect.top = pDoc->vVolumePoint[i]->top.y;
-			kaRect.right = 62 + (i-j)*lw +pDoc->vVolumePoint[i]->bottom.x + pDoc->KBegin*lw;
-			kaRect.bottom = pDoc->vVolumePoint[i]->bottom.y;
+			kaRect.left = 62 + (i-j)*lw + pDoc->stockDoc->vVolumePoint[i]->top.x + pDoc->stockDoc->KBegin*lw;
+			kaRect.top = pDoc->stockDoc->vVolumePoint[i]->top.y;
+			kaRect.right = 62 + (i-j)*lw +pDoc->stockDoc->vVolumePoint[i]->bottom.x + pDoc->stockDoc->KBegin*lw;
+			kaRect.bottom = pDoc->stockDoc->vVolumePoint[i]->bottom.y;
 			dc.Rectangle(&kaRect);
 		}
 	}
@@ -650,22 +650,22 @@ void CWnStockView::DrawKLine()
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(RGB(240, 0, 0));
 	dc.SetTextAlign(TA_RIGHT);
-	float KM = pDoc->KHighMax - pDoc->KLowMin;
+	float KM = pDoc->stockDoc->KHighMax - pDoc->stockDoc->KLowMin;
 	for(i = 0; i < 9; i++)
 	{
-		sprintf(chName, "%10.2f", pDoc->KHighMax - (KM/9.0)*i);
+		sprintf(chName, "%10.2f", pDoc->stockDoc->KHighMax - (KM/9.0)*i);
 		dc.TextOut(55, 17 + 0.5 * m_interKH + i * m_interKH - 10, chName, lstrlen(chName));
 	}
-	sprintf(chName, "%10.2f", pDoc->KHighMax - (KM/9.0)*9);
+	sprintf(chName, "%10.2f", pDoc->stockDoc->KHighMax - (KM/9.0)*9);
 	dc.TextOut(55, 17 + 9.5 * m_interKH - 20, chName, lstrlen(chName));
 
 
 	//画K线成交金量坐标值
 	dc.SetTextColor(RGB(116, 245, 240));
-	sprintf(chName, "%8.0d万", pDoc->KMaxVolume/10000);
+	sprintf(chName, "%8.0d万", pDoc->stockDoc->KMaxVolume/10000);
 	dc.TextOut(55, rect.bottom - 50 - 6*m_interKH - 8, chName, lstrlen(chName));
 
-	sprintf(chName, "%8.0d万", pDoc->KMaxVolume/10000/2);
+	sprintf(chName, "%8.0d万", pDoc->stockDoc->KMaxVolume/10000/2);
 	dc.TextOut(55, rect.bottom - 50 - 5*m_interKH -8, chName, lstrlen(chName));
 
 	sprintf(chName, "%d", 0);
@@ -691,43 +691,43 @@ void CWnStockView::DrawMaLine()
 	ma20Pen.SelectObject(&dcBlue);
 
 	float b =  m_interKW;       //水平宽度
-	float lw = b/pDoc->KDay; 
+	float lw = b/pDoc->stockDoc->KDay; 
 
 
 	//画MA5
-	int n = pDoc->vMa5Price.size();
+	int n = pDoc->stockDoc->vMa5Price.size();
 	if (n == 0)
 	{
 		return;
 	}
-	for (int i=1;i<pDoc->KDay;i=i+1) //没三天画一直线
+	for (int i=1;i<pDoc->stockDoc->KDay;i=i+1) //没三天画一直线
 	{
-		if((n - pDoc->KDay +i + pDoc->KPos) >=5) //前4天不画MA5
+		if((n - pDoc->stockDoc->KDay +i + pDoc->stockDoc->KPos) >=5) //前4天不画MA5
 		{
-			ma5Pen.MoveTo(pDoc->vMa5Point[i].x + pDoc->KBegin*lw, pDoc->vMa5Point[i].y);
-			ma5Pen.LineTo(pDoc->vMa5Point[i-1].x + pDoc->KBegin*lw,pDoc->vMa5Point[i-1].y);
+			ma5Pen.MoveTo(pDoc->stockDoc->vMa5Point[i].x + pDoc->stockDoc->KBegin*lw, pDoc->stockDoc->vMa5Point[i].y);
+			ma5Pen.LineTo(pDoc->stockDoc->vMa5Point[i-1].x + pDoc->stockDoc->KBegin*lw,pDoc->stockDoc->vMa5Point[i-1].y);
 		}
 	}
 
 	//画MA10
-	n = pDoc->vMa10Price.size();
-	for (int i=1;i<pDoc->KDay;i=i+1) //没三天画一直线
+	n = pDoc->stockDoc->vMa10Price.size();
+	for (int i=1;i<pDoc->stockDoc->KDay;i=i+1) //没三天画一直线
 	{
-		if((n - pDoc->KDay +i + pDoc->KPos) >=10) //前9天不画MA10
+		if((n - pDoc->stockDoc->KDay +i + pDoc->stockDoc->KPos) >=10) //前9天不画MA10
 		{
-			ma10Pen.MoveTo(pDoc->vMa10Point[i].x + pDoc->KBegin*lw, pDoc->vMa10Point[i].y);
-			ma10Pen.LineTo(pDoc->vMa10Point[i-1].x + pDoc->KBegin*lw,pDoc->vMa10Point[i-1].y);
+			ma10Pen.MoveTo(pDoc->stockDoc->vMa10Point[i].x + pDoc->stockDoc->KBegin*lw, pDoc->stockDoc->vMa10Point[i].y);
+			ma10Pen.LineTo(pDoc->stockDoc->vMa10Point[i-1].x + pDoc->stockDoc->KBegin*lw,pDoc->stockDoc->vMa10Point[i-1].y);
 		}
 	}
 
 	//画MA5
-	n = pDoc->vMa20Price.size();
-	for (int i=1;i<pDoc->KDay;i=i+1) //没三天画一直线
+	n = pDoc->stockDoc->vMa20Price.size();
+	for (int i=1;i<pDoc->stockDoc->KDay;i=i+1) //没三天画一直线
 	{
-		if((n - pDoc->KDay +i + pDoc->KPos) >=20) //前19天不画MA20
+		if((n - pDoc->stockDoc->KDay +i + pDoc->stockDoc->KPos) >=20) //前19天不画MA20
 		{
-			ma20Pen.MoveTo(pDoc->vMa20Point[i].x + pDoc->KBegin*lw, pDoc->vMa20Point[i].y);
-			ma20Pen.LineTo(pDoc->vMa20Point[i-1].x + pDoc->KBegin*lw,pDoc->vMa20Point[i-1].y);
+			ma20Pen.MoveTo(pDoc->stockDoc->vMa20Point[i].x + pDoc->stockDoc->KBegin*lw, pDoc->stockDoc->vMa20Point[i].y);
+			ma20Pen.LineTo(pDoc->stockDoc->vMa20Point[i-1].x + pDoc->stockDoc->KBegin*lw,pDoc->stockDoc->vMa20Point[i-1].y);
 		}
 	}
 
@@ -775,38 +775,38 @@ void CWnStockView::ShowKData(int i)
 	dcBlue.SetTextColor(RGB(139, 0, 255));
 
 	//显示开盘价
-	int n = pDoc->vKData.size();
+	int n = pDoc->stockDoc->vKData.size();
 	if (n == 0)
 	{
 		return;
 	}
 
 	dc.TextOut(rect.right-110, 44, "                        ", strlen("                        ")-1);
-	CString str = (pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->strDate);
+	CString str = (pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->strDate);
 	dc.TextOut(rect.right-110, 44,  str,  strlen(str));
 
 	dc.TextOut(rect.right-110, 74, "                        ", strlen("                        ")-1);
-	sprintf(chName, "%10.2f\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fOpen);
+	sprintf(chName, "%10.2f\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fOpen);
 	dc.TextOut(rect.right-110, 74, chName, lstrlen(chName)-1);
 
 	dc.TextOut(rect.right-110, 104, "                        ", strlen("                        ")-1);
-	sprintf(chName, "%10.2f\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fClose);
+	sprintf(chName, "%10.2f\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fClose);
 	dc.TextOut(rect.right-110, 104, chName, lstrlen(chName)-1);
 
 	dc.TextOut(rect.right-110, 132, "                        ", strlen("                        ")-1);
-	sprintf(chName, "%10.2f\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fHigh);
+	sprintf(chName, "%10.2f\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fHigh);
 	dc.TextOut(rect.right-110, 132, chName, lstrlen(chName)-1);
 
 	dc.TextOut(rect.right-110, 162, "                        ", strlen("                        ")-1);
-	sprintf(chName, "%10.2f\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fLow);
+	sprintf(chName, "%10.2f\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fLow);
 	dc.TextOut(rect.right-110, 162, chName, lstrlen(chName)-1);
 
 	//画涨幅数据
-	if (pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fPassClose <= pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fClose)
+	if (pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fPassClose <= pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fClose)
 	{
 		dc.TextOut(rect.right-110, 192, "                        ", strlen("                        ")-1);//清楚上次显示留下的痕迹
-		float grow = pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fClose - pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fPassClose;
-		float ratio = grow /(pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fPassClose)*100;
+		float grow = pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fClose - pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fPassClose;
+		float ratio = grow /(pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fPassClose)*100;
 		sprintf(chName, "%10.2f\n", grow);
 		dc.TextOut(rect.right-110, 192, chName, lstrlen(chName)-1);
 		dc.TextOut(rect.right-110, 222, "                        ", strlen("                        ")-1);
@@ -816,8 +816,8 @@ void CWnStockView::ShowKData(int i)
 	else
 	{
 		dc.TextOut(rect.right-110, 192, "                        ", strlen("                        ")-1);//清楚上次显示留下的痕迹
-		float grow = ((pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fPassClose) - (pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fClose));
-		float ratio = grow/(pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->fPassClose);
+		float grow = ((pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fPassClose) - (pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fClose));
+		float ratio = grow/(pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->fPassClose);
 		sprintf(chName, "%10.2f\n", grow);
 		dc1.TextOut(rect.right-110, 192, chName, lstrlen(chName)-1);
 		dc.TextOut(rect.right-110, 222, "                        ", strlen("                        ")-1);
@@ -827,24 +827,24 @@ void CWnStockView::ShowKData(int i)
 
 	//画成交量
 	dc.TextOut(rect.right-110, 252, "                        ", lstrlen("                        ")-1);
-	sprintf(chName, "%llu\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->Volume); //%llu 64位无符号整形
+	sprintf(chName, "%llu\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->Volume); //%llu 64位无符号整形
 	dc.TextOut(rect.right-110, 252, chName, lstrlen(chName)-1);
 
 
 	//计算量比并显示
 	//计算日量比
-	if (n-pDoc->KDay+i + pDoc->KPos > 6)
+	if (n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos > 6)
 	{
 		// 		CFunction function;
 		// 		CString str;
-		// 		function.GetThan(n-pDoc->KDay+i + pDoc->KPos,str);
+		// 		function.GetThan(n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos,str);
 		// 		AfxMessageBox(str);
-		long long nowVolume = pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->Volume;
+		long long nowVolume = pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->Volume;
 		long long passVolume = 0;
 		float fThan = 0;
-		for (int j = n-pDoc->KDay+i + pDoc->KPos-1; j>n-pDoc->KDay+i + pDoc->KPos-6; j--)
+		for (int j = n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos-1; j>n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos-6; j--)
 		{
-			passVolume += pDoc->vKData[j]->Volume/5;
+			passVolume += pDoc->stockDoc->vKData[j]->Volume/5;
 		}
 		fThan = (float)nowVolume/passVolume;
 		sprintf(chName, "%.2f", fThan);
@@ -857,29 +857,29 @@ void CWnStockView::ShowKData(int i)
 	dc.TextOut(rect.right-110, 282, chName, lstrlen(chName));
 
 	//画成交额数据
-	//sprintf(chName, "%10.2f\n", (float)pDoc->m_Stock.Pbuy3);
+	//sprintf(chName, "%10.2f\n", (float)pDoc->stockDoc->m_Stock.Pbuy3);
 	dc.TextOut(rect.right-110, 312, "                        ", lstrlen("                        ")-1);
-	sprintf(chName, "%llu\n", pDoc->vKData[n-pDoc->KDay+i + pDoc->KPos]->Amount); //%llu 64位无符号整形
+	sprintf(chName, "%llu\n", pDoc->stockDoc->vKData[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]->Amount); //%llu 64位无符号整形
 	dc.TextOut(rect.right-110, 312, chName, lstrlen(chName)-1);
 
 
 	//左上角显示MA5,MA10,MA20的数据
-	n = pDoc->vMa5Price.size();
-	if (pDoc->vMa5Price.size() > 5)
+	n = pDoc->stockDoc->vMa5Price.size();
+	if (pDoc->stockDoc->vMa5Price.size() > 5)
 	{
-		sprintf(chName, "MA5=%.2f\n", pDoc->vMa5Price[n-pDoc->KDay+i + pDoc->KPos]);
+		sprintf(chName, "MA5=%.2f\n", pDoc->stockDoc->vMa5Price[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 		dcWhite.TextOut(64, 17+0.05*m_interKH, chName, lstrlen(chName) -1);
 	}
-	n = pDoc->vMa10Price.size();
-	if (pDoc->vMa10Price.size() > 10)
+	n = pDoc->stockDoc->vMa10Price.size();
+	if (pDoc->stockDoc->vMa10Price.size() > 10)
 	{
-		sprintf(chName, "MA10=%.2f\n", pDoc->vMa10Price[n-pDoc->KDay+i + pDoc->KPos]);
+		sprintf(chName, "MA10=%.2f\n", pDoc->stockDoc->vMa10Price[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 		dcYellow.TextOut(130, 17+0.05*m_interKH, chName, lstrlen(chName) -1);
 	}
-	n = pDoc->vMa20Price.size();
-	if (pDoc->vMa20Price.size() > 10)
+	n = pDoc->stockDoc->vMa20Price.size();
+	if (pDoc->stockDoc->vMa20Price.size() > 10)
 	{
-		sprintf(chName, "MA20=%.2f\n", pDoc->vMa20Price[n-pDoc->KDay+i + pDoc->KPos]);
+		sprintf(chName, "MA20=%.2f\n", pDoc->stockDoc->vMa20Price[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 		dcBlue.TextOut(210, 17+0.05*m_interKH, chName, lstrlen(chName) -1);
 	}
 	return;
@@ -893,7 +893,7 @@ void CWnStockView::DrawMacd(int i)
 	CRect rect;
 	GetClientRect(&rect);
 
-	int n = pDoc->vMacd.size();
+	int n = pDoc->stockDoc->vMacd.size();
 	if (n == 0)
 	{
 		return;
@@ -908,18 +908,18 @@ void CWnStockView::DrawMacd(int i)
 	dc2.SelectObject(macdPen2);
 
 	//开始画MACD
-	for (int j=0; j<pDoc->KDay; j=j+1)
+	for (int j=0; j<pDoc->stockDoc->KDay; j=j+1)
 	{
 
-		if (pDoc->vMacd[n-pDoc->KDay + j + pDoc->KPos] >= 0)
+		if (pDoc->stockDoc->vMacd[n-pDoc->stockDoc->KDay + j + pDoc->stockDoc->KPos] >= 0)
 		{
-			dc1.MoveTo(pDoc->vMacdPoint[j].x, 14*m_interKH+17);
-			dc1.LineTo(pDoc->vMacdPoint[j].x, pDoc->vMacdPoint[j].y);
+			dc1.MoveTo(pDoc->stockDoc->vMacdPoint[j].x, 14*m_interKH+17);
+			dc1.LineTo(pDoc->stockDoc->vMacdPoint[j].x, pDoc->stockDoc->vMacdPoint[j].y);
 		}
 		else
 		{
-			dc2.MoveTo(pDoc->vMacdPoint[j].x, 14*m_interKH+17);
-			dc2.LineTo(pDoc->vMacdPoint[j].x, pDoc->vMacdPoint[j].y);
+			dc2.MoveTo(pDoc->stockDoc->vMacdPoint[j].x, 14*m_interKH+17);
+			dc2.LineTo(pDoc->stockDoc->vMacdPoint[j].x, pDoc->stockDoc->vMacdPoint[j].y);
 		}
 	}
 
@@ -930,11 +930,11 @@ void CWnStockView::DrawMacd(int i)
 	dc1.SetTextColor(RGB(240,0,0));
 	char chName[1024] = {0};
 
-	sprintf(chName, "%.2f", pDoc->maxMACD);
+	sprintf(chName, "%.2f", pDoc->stockDoc->maxMACD);
 	dc1.TextOut(30, rect.bottom - 50 - 3*m_interKH - 8, chName, lstrlen(chName));
 	sprintf(chName, "%d", 0);
 	dc1.TextOut(40, rect.bottom - 50 - 2*m_interKH - 8, chName, lstrlen(chName));
-	sprintf(chName, "%.2f", pDoc->minMACD);
+	sprintf(chName, "%.2f", pDoc->stockDoc->minMACD);
 	dc1.TextOut(30, rect.bottom - 50 - m_interKH - 8, chName, lstrlen(chName));
 
 	//显示MACD的DIF，DEA，MACD值
@@ -955,31 +955,31 @@ void CWnStockView::DrawMacd(int i)
 	dc5.SetTextColor(RGB(128,0,128));
 
 	dc1.TextOut(64, rect.bottom-(24/5*m_interKH)-50,"                                                                    ", lstrlen("                                                                    ")-1);
-	sprintf(chName,"DIF:%4.2f", pDoc->vMacdDif[n-pDoc->KDay+i + pDoc->KPos]);
+	sprintf(chName,"DIF:%4.2f", pDoc->stockDoc->vMacdDif[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 	dc3.TextOut(64, rect.bottom-(24/5*m_interKH)-50, chName, lstrlen(chName));
-	sprintf(chName," DEA:%4.2f", pDoc->vMacdDea[n-pDoc->KDay+i + pDoc->KPos]);
+	sprintf(chName," DEA:%4.2f", pDoc->stockDoc->vMacdDea[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 	dc4.TextOut(124, rect.bottom-(24/5*m_interKH)-50, chName, lstrlen(chName));
-	sprintf(chName," MACD:%4.2f", pDoc->vMacd[n-pDoc->KDay+i + pDoc->KPos]);
+	sprintf(chName," MACD:%4.2f", pDoc->stockDoc->vMacd[n-pDoc->stockDoc->KDay+i + pDoc->stockDoc->KPos]);
 	dc5.TextOut(194, rect.bottom-(24/5*m_interKH)-50, chName, lstrlen(chName));
 
 	//开始画DIF曲线
 	CClientDC dc6(this);
 	CPen difPen(PS_DOT, 1, RGB(255, 255, 255));
 	dc6.SelectObject(difPen);
-	for (int i=1; i<pDoc->KDay; i=i+1)
+	for (int i=1; i<pDoc->stockDoc->KDay; i=i+1)
 	{
-		dc6.MoveTo(pDoc->vMacdDifPoint[i].x, pDoc->vMacdDifPoint[i].y);
-		dc6.LineTo(pDoc->vMacdDifPoint[i-1].x, pDoc->vMacdDifPoint[i-1].y);
+		dc6.MoveTo(pDoc->stockDoc->vMacdDifPoint[i].x, pDoc->stockDoc->vMacdDifPoint[i].y);
+		dc6.LineTo(pDoc->stockDoc->vMacdDifPoint[i-1].x, pDoc->stockDoc->vMacdDifPoint[i-1].y);
 	}
 
 	//开始画DIF曲线
 	CClientDC dc7(this);
 	CPen deaPen(PS_DOT, 1, RGB(255, 255, 0));
 	dc7.SelectObject(deaPen);
-	for (int i=1; i<pDoc->KDay; i=i+1)
+	for (int i=1; i<pDoc->stockDoc->KDay; i=i+1)
 	{
-		dc7.MoveTo(pDoc->vMacdDeaPoint[i].x, pDoc->vMacdDeaPoint[i].y);
-		dc7.LineTo(pDoc->vMacdDeaPoint[i-1].x, pDoc->vMacdDeaPoint[i-1].y);
+		dc7.MoveTo(pDoc->stockDoc->vMacdDeaPoint[i].x, pDoc->stockDoc->vMacdDeaPoint[i].y);
+		dc7.LineTo(pDoc->stockDoc->vMacdDeaPoint[i-1].x, pDoc->stockDoc->vMacdDeaPoint[i-1].y);
 	}
 	return;
 }
@@ -1127,7 +1127,11 @@ void CWnStockView::DrowMinLineUI(CDC* pDC)
 // 	ShowMinData();
 // 	DrawMinLine();
 
+<<<<<<< HEAD
 	pDoc->GetDayMinPoint();
+=======
+	pDoc->stockDoc->GetDayMinPoint(m_interMinH, m_interMinW);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	DrowMinLine();
 	ShowMinData();
 
@@ -1163,11 +1167,16 @@ void CWnStockView::ShowMinData()
 	dcWhite.SetTextColor(RGB(255,255,255));
 
 
+<<<<<<< HEAD
 	int n = pDoc->vMinData.size();
+=======
+	int n = pDoc->stockDoc->vMinData.size();
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	if (n==0)
 	{
 		return;
 	}
+<<<<<<< HEAD
 	if (pDoc->vMinData[n-1]->fNow >= pDoc->vMinData[n-1]->fPassClose)
 	{
 		dcRed.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
@@ -1240,11 +1249,86 @@ void CWnStockView::ShowMinData()
 		dcRed.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
 		dcRed.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
 		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fLow);
+=======
+	if (pDoc->stockDoc->vMinData[n-1]->fNow >= pDoc->stockDoc->vMinData[n-1]->fPassClose)
+	{
+		dcRed.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale5Price);
+		dcRed.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale5)/100);
+		dcRed.TextOut(rect.right-60, 65, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 85, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale4Price);
+		dcRed.TextOut(rect.right-130, 85, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale4)/100);
+		dcRed.TextOut(rect.right-60, 85, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 105, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale3Price);
+		dcRed.TextOut(rect.right-130, 105, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale3)/100);
+		dcRed.TextOut(rect.right-60, 105, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 125, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale2Price);
+		dcRed.TextOut(rect.right-130, 125, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale2)/100);
+		dcRed.TextOut(rect.right-60, 125, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 145, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale1Price);
+		dcRed.TextOut(rect.right-130, 145, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale1)/100);
+		dcRed.TextOut(rect.right-60, 145, chName, lstrlen(chName)-1);
+
+		dcRed.TextOut(rect.right-130, 175, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy1Price);
+		dcRed.TextOut(rect.right-130, 175, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy1)/100);
+		dcRed.TextOut(rect.right-60, 175, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 195, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy2Price);
+		dcRed.TextOut(rect.right-130, 195, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy2)/100);
+		dcRed.TextOut(rect.right-60, 195, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 215, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy3Price);
+		dcRed.TextOut(rect.right-130, 215, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy3)/100);
+		dcRed.TextOut(rect.right-60, 215, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 235, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy4Price);
+		dcRed.TextOut(rect.right-130, 235, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy4)/100);
+		dcRed.TextOut(rect.right-60, 235, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-130, 255, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy5Price);
+		dcRed.TextOut(rect.right-130, 255, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy5)/100);
+		dcRed.TextOut(rect.right-60, 255, chName, lstrlen(chName)-1);
+
+		dcRed.TextOut(rect.right-140, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fNow);
+		dcRed.TextOut(rect.right-140, 285, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-140, 305, "      ", strlen("      ")-1);
+		float ratio = (-pDoc->stockDoc->vMinData[n-1]->fPassClose + pDoc->stockDoc->vMinData[n-1]->fNow) / pDoc->stockDoc->vMinData[n-1]->fPassClose;
+		sprintf(chName, "+%5.2f\n", ratio*100);
+		dcRed.TextOut(rect.right-140, 305, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-140, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fPassClose);
+		dcRed.TextOut(rect.right-140, 325, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fOpen);
+		dcRed.TextOut(rect.right-50, 285, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 305, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fHigh);
+		dcRed.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
+		dcRed.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 		dcRed.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
 	}
 	else
 	{
 		dcGreen.TextOut(rect.right-130, 65, "                                      ", strlen("                                      ")-1);
+<<<<<<< HEAD
 		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fSale5Price);
 		dcGreen.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
 		sprintf(chName, "%d\n", (pDoc->vMinData[n-1]->iSale5)/100);
@@ -1314,11 +1398,83 @@ void CWnStockView::ShowMinData()
 		dcGreen.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
 		dcGreen.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
 		sprintf(chName, "%5.2f\n", pDoc->vMinData[n-1]->fLow);
+=======
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale5Price);
+		dcGreen.TextOut(rect.right-130, 65, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale5)/100);
+		dcGreen.TextOut(rect.right-60, 65, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 85, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale4Price);
+		dcGreen.TextOut(rect.right-130, 85, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale4)/100);
+		dcGreen.TextOut(rect.right-60, 85, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 105, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale3Price);
+		dcGreen.TextOut(rect.right-130, 105, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale3)/100);
+		dcGreen.TextOut(rect.right-60, 105, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 125, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale2Price);
+		dcGreen.TextOut(rect.right-130, 125, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale2)/100);
+		dcGreen.TextOut(rect.right-60, 125, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 145, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fSale1Price);
+		dcGreen.TextOut(rect.right-130, 145, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iSale1)/100);
+		dcGreen.TextOut(rect.right-60, 145, chName, lstrlen(chName)-1);
+
+		dcGreen.TextOut(rect.right-130, 175, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy1Price);
+		dcGreen.TextOut(rect.right-130, 175, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy1)/100);
+		dcGreen.TextOut(rect.right-60, 175, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 195, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy2Price);
+		dcGreen.TextOut(rect.right-130, 195, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy2)/100);
+		dcGreen.TextOut(rect.right-60, 195, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 215, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy3Price);
+		dcGreen.TextOut(rect.right-130, 215, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy3)/100);
+		dcGreen.TextOut(rect.right-60, 215, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 235, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy4Price);
+		dcGreen.TextOut(rect.right-130, 235, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy4)/100);
+		dcGreen.TextOut(rect.right-60, 235, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-130, 255, "                                      ", strlen("                                      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fBuy5Price);
+		dcGreen.TextOut(rect.right-130, 255, chName, lstrlen(chName)-1);
+		sprintf(chName, "%d\n", (pDoc->stockDoc->vMinData[n-1]->iBuy5)/100);
+		dcGreen.TextOut(rect.right-60, 255, chName, lstrlen(chName)-1);
+
+		dcGreen.TextOut(rect.right-140, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fNow);
+		dcGreen.TextOut(rect.right-140, 285, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-140, 305, "      ", strlen("      ")-1);
+		float ratio = (pDoc->stockDoc->vMinData[n-1]->fPassClose - pDoc->stockDoc->vMinData[n-1]->fNow) / pDoc->stockDoc->vMinData[n-1]->fPassClose;
+		sprintf(chName, "-%5.2f\n", ratio*100);
+		dcGreen.TextOut(rect.right-140, 305, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-140, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fPassClose);
+		dcGreen.TextOut(rect.right-140, 325, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 285, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fOpen);
+		dcGreen.TextOut(rect.right-50, 285, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 305, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fHigh);
+		dcGreen.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
+		dcGreen.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 		dcGreen.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
 	}
 
 	//分时线的最高，最低，昨收盘价格
 	float diffPrice = 0; //每个interH对应的价格差
+<<<<<<< HEAD
 	float fPass = pDoc->vMinData[0]->fPassClose;
 	if (pDoc->fLimitPrice > (fPass)) // 峰值在上
 	{
@@ -1342,6 +1498,31 @@ void CWnStockView::ShowMinData()
 	float downPrice4 = pDoc->vMinData[0]->fPassClose-4*diffPrice;
 	float downPrice5 = pDoc->vMinData[0]->fPassClose-5*diffPrice;
 	float downPrice6 = pDoc->vMinData[0]->fPassClose-6*diffPrice;
+=======
+	float fPass = pDoc->stockDoc->vMinData[0]->fPassClose;
+	if (pDoc->stockDoc->fLimitPrice > (fPass)) // 峰值在上
+	{
+		diffPrice = (pDoc->stockDoc->fLimitPrice - fPass)/6;
+	}
+	else//峰值在下
+	{
+		diffPrice = (fPass - pDoc->stockDoc->fLimitPrice)/6;
+	}
+
+	float upPrice1 = pDoc->stockDoc->vMinData[0]->fPassClose+diffPrice;
+	float upPrice2 = pDoc->stockDoc->vMinData[0]->fPassClose+2*diffPrice;
+	float upPrice3 = pDoc->stockDoc->vMinData[0]->fPassClose+3*diffPrice;
+	float upPrice4 = pDoc->stockDoc->vMinData[0]->fPassClose+4*diffPrice;
+	float upPrice5 = pDoc->stockDoc->vMinData[0]->fPassClose+5*diffPrice;
+	float upPrice6 = pDoc->stockDoc->vMinData[0]->fPassClose+6*diffPrice;
+
+	float downPrice1 = pDoc->stockDoc->vMinData[0]->fPassClose-diffPrice;
+	float downPrice2 = pDoc->stockDoc->vMinData[0]->fPassClose-2*diffPrice;
+	float downPrice3 = pDoc->stockDoc->vMinData[0]->fPassClose-3*diffPrice;
+	float downPrice4 = pDoc->stockDoc->vMinData[0]->fPassClose-4*diffPrice;
+	float downPrice5 = pDoc->stockDoc->vMinData[0]->fPassClose-5*diffPrice;
+	float downPrice6 = pDoc->stockDoc->vMinData[0]->fPassClose-6*diffPrice;
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 
 	//(62, 35)
 	dcRed.TextOut(20, 30+5*m_interMinH, "      ", strlen("      ")-1);
@@ -1364,7 +1545,11 @@ void CWnStockView::ShowMinData()
 	dcRed.TextOut(20, 30, chName, lstrlen(chName)-1);
 
 	dcWhite.TextOut(20, 30+6*m_interMinH, "      ", strlen("      ")-1);
+<<<<<<< HEAD
 	sprintf(chName, "%5.2f\n", pDoc->vMinData[0]->fPassClose);
+=======
+	sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[0]->fPassClose);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	dcWhite.TextOut(20, 30+6*m_interMinH, chName, lstrlen(chName)-1);
 
 	dcGreen.TextOut(20, 30+7*m_interMinH, "      ", strlen("      ")-1);
@@ -1463,32 +1648,56 @@ void CWnStockView::DrowMinLine()
 	dcRed.SelectObject(&redPen);
 	dcYellow.SelectObject(&yellowPen);
 
+<<<<<<< HEAD
 	int n = pDoc->vMinPricePoint.size();
+=======
+	int n = pDoc->stockDoc->vMinPricePoint.size();
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	if (n == 0)
 	{
 		return;
 	}
 	//画价格线
+<<<<<<< HEAD
 	dcRed.MoveTo(pDoc->vMinPricePoint[0].x ,pDoc->vMinPricePoint[0].y);
 	for(int i=1; i<n; i++)
 	{
 		dcRed.LineTo(pDoc->vMinPricePoint[i].x ,pDoc->vMinPricePoint[i].y);
+=======
+	dcRed.MoveTo(pDoc->stockDoc->vMinPricePoint[0].x ,pDoc->stockDoc->vMinPricePoint[0].y);
+	for(int i=1; i<n; i++)
+	{
+		dcRed.LineTo(pDoc->stockDoc->vMinPricePoint[i].x ,pDoc->stockDoc->vMinPricePoint[i].y);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	}
 
 	//画平均价格线
 
+<<<<<<< HEAD
 	int len = pDoc->vMinAvgPricePoint.size();
 	dcYellow.MoveTo(pDoc->vMinAvgPricePoint[0].x ,pDoc->vMinAvgPricePoint[0].y);
 	for(int i=1; i<n; i++)
 	{
 		dcYellow.LineTo(pDoc->vMinAvgPricePoint[i].x ,pDoc->vMinAvgPricePoint[i].y);
+=======
+	int len = pDoc->stockDoc->vMinAvgPricePoint.size();
+	dcYellow.MoveTo(pDoc->stockDoc->vMinAvgPricePoint[0].x ,pDoc->stockDoc->vMinAvgPricePoint[0].y);
+	for(int i=1; i<n; i++)
+	{
+		dcYellow.LineTo(pDoc->stockDoc->vMinAvgPricePoint[i].x ,pDoc->stockDoc->vMinAvgPricePoint[i].y);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	}
 
 	//画成交量线
 	for(int i=1; i<n; i++)
 	{
+<<<<<<< HEAD
 		dcYellow.MoveTo(pDoc->vMinVolumePoint[i].x ,35+18*m_interMinH);
 		dcYellow.LineTo(pDoc->vMinVolumePoint[i].x ,pDoc->vMinVolumePoint[i].y);
+=======
+		dcYellow.MoveTo(pDoc->stockDoc->vMinVolumePoint[i].x ,35+18*m_interMinH);
+		dcYellow.LineTo(pDoc->stockDoc->vMinVolumePoint[i].x ,pDoc->stockDoc->vMinVolumePoint[i].y);
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 	}
 	return ;
 }
@@ -1503,7 +1712,11 @@ UINT CWnStockView::ThreadGetMinData(LPVOID lParam)
 	{
 		if ((stockTime.bExchange()) && (pThis->m_drawStatus == 2))
 		{
+<<<<<<< HEAD
 			pDoc->GetDayMinData(pThis->m_stockCode.GetBuffer(pThis->m_stockCode.GetLength()));
+=======
+			pDoc->stockDoc->GetDayMinData(pThis->m_stockCode.GetBuffer(pThis->m_stockCode.GetLength()));
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 			OutputDebugString("获得数据成功\n");
 			pThis->Invalidate();
 		}
@@ -1619,8 +1832,8 @@ void CWnStockView::OnMouseMove(UINT nFlags, CPoint point)
 				pDC->LineTo(x,/*9.5*interY+17*/rect.bottom - 50);
 
 				//判断鼠标位置对应的kDataGroup中的位置
-				double lw = (rect.right - 200 -62)/pDoc->KDay;
-				for (int i=0;i<pDoc->KDay;i++)
+				double lw = (rect.right - 200 -62)/pDoc->stockDoc->KDay;
+				for (int i=0;i<pDoc->stockDoc->KDay;i++)
 				{
 					//if ((x>(i*lw+62+0.5*(i+1))) && (x<((i+1)*lw)+62+0.5*(i+1)))
 					if ((x>(i*lw+62)) && (x<((i+1)*lw)+62))
@@ -1686,12 +1899,12 @@ void CWnStockView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			else if(m_drawStatus==1) //K线
 			{
-				kDay0 =  pDoc->KDay;
+				kDay0 =  pDoc->stockDoc->KDay;
 				kDay0 -= 5;
 				if (kDay0 >0)
 				{
 					//重绘时候恢复开始参数设置
-					pDoc->KDay = kDay0;
+					pDoc->stockDoc->KDay = kDay0;
 					Invalidate();
 				}
 			}
@@ -1710,21 +1923,21 @@ void CWnStockView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			else if (m_drawStatus==1) //K线
 			{
-				kDay0 =  pDoc->KDay;
+				kDay0 =  pDoc->stockDoc->KDay;
 				kDay0 += 5;
-				if (kDay0 <=(pDoc->vKData.size() + pDoc->KPos))
+				if (kDay0 <=(pDoc->stockDoc->vKData.size() + pDoc->stockDoc->KPos))
 				{
 					//重绘时候恢复开始参数设置
-					pDoc->KDay = kDay0;
+					pDoc->stockDoc->KDay = kDay0;
 					Invalidate();
 				}
 				else //剩余天数小于5天
 				{
 					kDay0 += 1;
-					if (kDay0 < (pDoc->vKData.size() + pDoc->KPos))
+					if (kDay0 < (pDoc->stockDoc->vKData.size() + pDoc->stockDoc->KPos))
 					{
 						//重绘时候恢复开始参数设置
-						pDoc->KDay = kDay0;
+						pDoc->stockDoc->KDay = kDay0;
 						Invalidate();
 					}
 				}
@@ -1735,19 +1948,19 @@ void CWnStockView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		{
 			if (m_drawStatus==1)//显示K线
 			{
-				int maxPos = pDoc->vKData.size()- pDoc->KDay;
-				pos = pDoc->KPos -5;
+				int maxPos = pDoc->stockDoc->vKData.size()- pDoc->stockDoc->KDay;
+				pos = pDoc->stockDoc->KPos -5;
 				if ((-pos) <= maxPos)
 				{
-					pDoc->KPos = pos;
+					pDoc->stockDoc->KPos = pos;
 					Invalidate();
 				}
 				else //剩余未显示天数小于5
 				{
-					pos = pDoc->KPos -1;
+					pos = pDoc->stockDoc->KPos -1;
 					if ((-pos) <= maxPos)
 					{
-						pDoc->KPos = pos;
+						pDoc->stockDoc->KPos = pos;
 						Invalidate();
 					}
 				}
@@ -1756,19 +1969,19 @@ void CWnStockView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case VK_RIGHT:
 		{
-			int maxPos = pDoc->vKData.size() - pDoc->KDay;
-			pos = pDoc->KPos + 5;
+			int maxPos = pDoc->stockDoc->vKData.size() - pDoc->stockDoc->KDay;
+			pos = pDoc->stockDoc->KPos + 5;
 			if (pos <=0)
 			{
-				pDoc->KPos = pos;
+				pDoc->stockDoc->KPos = pos;
 				Invalidate();
 			}
 			else//剩余未显示天数小于5
 			{
-				pos = pDoc->KPos +1;
+				pos = pDoc->stockDoc->KPos +1;
 				if (pos <=0)
 				{
-					pDoc->KPos = pos;
+					pDoc->stockDoc->KPos = pos;
 					Invalidate();
 				}
 			}
@@ -1815,7 +2028,11 @@ void CWnStockView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		bScroll = false;
 		OnInitialUpdate();
 		m_drawStatus = 2;
+<<<<<<< HEAD
 		pDoc->GetDayMinData(m_stockCode.GetBuffer(m_stockCode.GetLength()));
+=======
+		pDoc->stockDoc->GetDayMinData(m_stockCode.GetBuffer(m_stockCode.GetLength()));
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 		
 		Invalidate();
 	}
@@ -1824,8 +2041,8 @@ void CWnStockView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		bScroll = false;
 		OnInitialUpdate();
 		m_drawStatus = 1;
-		pDoc->KDay = 60;
-		pDoc->GetDayKData(m_stockCode.GetBuffer(m_stockCode.GetLength()));
+		pDoc->stockDoc->KDay = 60;
+		pDoc->stockDoc->GetDayKData(m_stockCode.GetBuffer(m_stockCode.GetLength()));
 		Invalidate();
 	}
 	CScrollView::OnLButtonDblClk(nFlags, point);

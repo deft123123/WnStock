@@ -47,6 +47,7 @@ CWnStockDoc::CWnStockDoc()
 
 //  	StockData stockData;
 //  	stockData.GetMinStockData("600016");
+<<<<<<< HEAD
 
 	ReadMystock();
 	GetMytockData();
@@ -55,6 +56,19 @@ CWnStockDoc::CWnStockDoc()
 	KBegin = 0;		//开始显示的K线索引	
 	
 	//GetDayKData("600016");
+=======
+	stockDoc = new StockDoc();
+
+
+	ReadMystock();
+	GetMytockData();
+	stockDoc->KDay = 60;		//默认画60天K线
+	stockDoc->KPos = 0;		//默认偏移量
+	stockDoc->KBegin = 0;		//开始显示的K线索引	
+	
+	//GetDayKData("600016");
+	
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
 }
 
 CWnStockDoc::~CWnStockDoc()
@@ -223,6 +237,7 @@ void CWnStockDoc::GetMytockData()
 	}
 	return ;
 }
+<<<<<<< HEAD
 
 void CWnStockDoc::GetDayKData(char* stockCode)
 {
@@ -1080,3 +1095,5 @@ void CWnStockDoc::GetDayMinPoint()
 	}
 	return;
 }
+=======
+>>>>>>> ed4f39872f51d0edb6b487112f61d9ad234ec066
