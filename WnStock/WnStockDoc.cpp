@@ -224,7 +224,6 @@ void CWnStockDoc::GetMytockData()
 	}
 	return ;
 }
-<<<<<<< HEAD
 
 void CWnStockDoc::GetDayKData(char* stockCode)
 {

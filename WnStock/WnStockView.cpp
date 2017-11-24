@@ -1243,7 +1243,7 @@ void CWnStockView::ShowMinData()
 		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fHigh);
 		dcRed.TextOut(rect.right-50, 305, chName, lstrlen(chName)-1);
 		dcRed.TextOut(rect.right-50, 325, "      ", strlen("      ")-1);
-		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow)
+		sprintf(chName, "%5.2f\n", pDoc->stockDoc->vMinData[n-1]->fLow);
 		dcRed.TextOut(rect.right-50, 325, chName, lstrlen(chName)-1);
 	}
 	else
